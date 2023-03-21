@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import render, redirect
 from apps.authentication.models import CustomUser
 from .models import UserWallet

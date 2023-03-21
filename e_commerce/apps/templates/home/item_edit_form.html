@@ -3,7 +3,7 @@
 {% block title %}Edit Item{% endblock %}
 
 {% block stylesheets %}
-    <!-- Specific Page CSS goes HERE  -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 {% endblock stylesheets %}
 
 {% block content %}
@@ -15,7 +15,7 @@
                     <h5 class="mb-0">Edit Item {{ item.id }}</h5>
                 </div>
                 <div class="card-body">
-                    <form id="item_update_form" method="post" class="form" role="form" >
+                    <form id="item_update_form" method="post" class="form" role="form" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form.non_field_errors }}
                         <div class="form-group">
@@ -28,7 +28,17 @@
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
-                                    {{ field.label_tag }} {{ field }}
+                                    {{ field.label_tag }}                 {% if field.name == "image" %}
+                                    <div class="custom-file">
+                                        <img src="/media/{{ form.image.value }}" width= "100" >
+                                        {{field}}
+                                        <label class="custom-file-label" for="{{ field.id_for_label}}">Choose file...</label>
+                                    
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                
                                     {% if field.help_text %}<div class="form-helptext">{{ field.help_text }}</div>{% endif %}
                                 </div>
                             {% endfor %}

@@ -2,6 +2,7 @@ from django import forms
 from .models import *
 
 
+
 class UpdateUserform(forms.ModelForm):
     first_name = forms.CharField(
         widget=forms.TextInput(
@@ -85,7 +86,7 @@ class ProductForm(forms.ModelForm):
         fields = ['name', 'description', 'price',
                   'image', 'product_category', 'stock']
         widgets = {
-            'image': forms.ClearableFileInput(attrs={'multiple': True}),
+            'image': forms.ClearableFileInput(),
             'category': forms.ModelChoiceField(queryset=product_category.objects.all())
         }
 

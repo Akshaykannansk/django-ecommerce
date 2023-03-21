@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
-from django.urls import reverse         
+from django.urls import reverse , reverse_lazy       
 from apps.authentication.models import CustomUser
 from django.views.generic import View, ListView
 from django.views import View
@@ -16,7 +16,7 @@ from .forms import *
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from .models import *
-from wallet.models import UserWallet
+from wallet.models import *
 from shop.models import *
 from django.contrib import messages
 from django.db.models import Avg, Max, Min, Sum
@@ -30,7 +30,10 @@ class DashBoard(View):
     context = {}
     def get(self, request):
         user = UserWallet.objects.get(user=request.user)
-        revenue = bonushistory.objects.filter(user_id= request.user).aggregate(Sum('bonusesamount'))
+        revenue = bonushistory.objects.filter(user_id= request.user).aggregate(Sum('bonusesamount')) or 0
+
+        if revenue is None:
+            revenue = 0
         expense = bonuses.objects.get(user_id= request.user)
         if expense.badge == "Bronze":
             badgeimg = "media/images/vecteezy_winner-glass-award-clipart-design-illustration_9304587_717.png"
@@ -152,10 +155,12 @@ class ProductView(View):
     context = {}
 
     def get(self, request):
+        form = ProductForm()
         product = Product.objects.all()     
         context ={
             'products':product,
-            'segments':'view product'
+            'segments':'view product',
+            'form': form
         }
         return render(request,self.template_name,context)
 
@@ -173,41 +178,42 @@ class ItemUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'home/item_edit_form.html'
+    success_url = reverse_lazy('product_view')
 
-    def dispatch(self, *args, **kwargs):
-        self.item_id = kwargs['pk']
-        return super(ItemUpdateView, self).dispatch(*args, **kwargs)
+    # def dispatch(self, *args, **kwargs):
+    #     self.item_id = kwargs['pk']
+    #     return super(ItemUpdateView, self).dispatch(*args, **kwargs)
 
-    def form_valid(self, form):
-        form.save()
-        return redirect('product_view')
+    # def form_valid(self, form):
+    #     form.save()
+    #     return redirect('product_view')
 
 
 
 
 class UpdateProduct(View):
-    template_name = 'home/updateproduct.html'
+    template_name = 'home/item_update_form.html'
 
     def get(self,request,product_id):
         return render(request,self.template_name)
 
-    # def get(self, request, product_id):
-    #     product = get_object_or_404(Product, id=product_id)
-    #     form = ProductForm(instance=product)
-    #     context = {'form': form, 'product': product}
-    #     return render(request, self.template_name, context)
+    def get(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        form = ProductForm(instance=product)
+        context = {'form': form, 'product': product}
+        return render(request, self.template_name, context)
 
-    # def post(self, request, product_id):
-    #     product = get_object_or_404(Product, id=product_id)
-    #     form = ProductForm(request.POST, request.FILES, instance=product)
-    #     if form.is_valid():
-    #         form.save()
-    #         messages.success(request, 'Product updated successfully.')
-    #         return redirect('product_list')
-    #     else:
-    #         messages.error(request, 'Error updating product.')
-    #         context = {'form': form, 'product': product}
-    #         return render(request, self.template_name, context) 
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product updated successfully.')
+            return redirect('product_list')
+        else:
+            messages.error(request, 'Error updating product.')
+            context = {'form': form, 'product': product}
+            return render(request, self.template_name, context) 
 
 
 

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'shop',
     'wallet',
+    'bootstrap_modal_forms',
 ]
 
 AUTH_USER_MODEL='authentication.CustomUser'

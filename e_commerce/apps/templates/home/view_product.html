@@ -2,10 +2,10 @@
 
 
 {% block head %}
-    {{ block.super }}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.1/css/bootstrap.min.css">
+ {% block stylesheets %}
+
+    {% endblock stylesheets %}
     {% endblock %}
-    
 
     {% block content %}
 
@@ -46,18 +46,17 @@
                             <td>
                                 <a href="/delete/{{ product.id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
                                 
-                                {% comment %} <a href="/update/{{ product.id }}" class="btn btn-primary">Edit</a>{% endcomment %}
+                    
                                
                                 {% comment %} <a  href="/update/{{ product.id }}/"class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ product.id }}">Edit</a> {% endcomment %}
                                 {% comment %} <a href="{% url 'item_edit' product.id %}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ product.id }}">Edit</a> {% endcomment %}
-                                <a href="{% url 'item_edit' product.id %}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
+                                <button type="button" id="edit" class="btn btn-primary" data-bs-toggle="modal" value="{{ product.id }}" data-bs-target="#editModal">Edit</button>
                                 
                                   
                                
 
 
                                 
-
                                 
                             </td>
                         </tr>
@@ -66,6 +65,7 @@
                             <td colspan="5">No products found.</td>
                         </tr>
                         {% endfor %}
+        
                     </tbody>
                     
                 </table>
@@ -79,7 +79,86 @@
     
       
 </section>
-    {% endblock %}
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.1/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+<form id="edit-form" action="" method="POST">
+  <div class="mb-3">
+    <label for="name-input" class="form-label">Name</label>
+   {{form.name}}
+  </div>
+  <div class="mb-3">
+    <label for="category-input" class="form-label">Category</label>
+    <input type="text" class="form-control" id="category-input" name="category" required>
+  </div>
+  <div class="mb-3">
+    <label for="description-input" class="form-label">Description</label>
+    <textarea class="form-control" id="description-input" name="description" rows="3" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="price-input" class="form-label">Price</label>
+    <input type="number" class="form-control" id="price-input" name="price" required>
+  </div>
+  <div class="mb-3">
+      <img id="image-preview" src="" alt="Image Preview" style="max-width: 200px;">
+    </div>
+    <div class="mb-3">
+      <label for="image-input" class="form-label">Image</label>
+      {{form.image}}
+    </div>
+</form>
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary">Save changes</button>
+</div>
+</div>
+</div>
+</div>
+
+  
+{% endblock %}
+{% block javascripts %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+        // Attach a click event listener to the edit button
+        $('#edit').on('click', function() {
+          // Get the closest table row to the button
+          var $row = $(this).closest('tr');
+      
+          // Get the data from the table row
+          var name = $row.find('td:eq(0)').text();
+          var category = $row.find('td:eq(1)').text();
+          var description = $row.find('td:eq(2)').text();
+          var price = $row.find('td:eq(3)').text();
+          var image = $row.find('img').attr('src');
+      
+          // Set the form action to the current row's ID
+      
+          // Populate the form fields with the data from the row
+          $('#id_name').val(name);
+          $('#category-input').val(category);
+          $('#description-input').val(description);
+          $('#price-input').val(price);
+          $('#image-preview').attr('src', image);
+      
+          // Open the modal
+         
+        });
+      });
+      
+      
+</script>
+{% endblock %}
+
+
+

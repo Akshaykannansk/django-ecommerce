@@ -1,3 +1,28 @@
+{% block stylesheets   %}    
+
+<style>
+ .cart {
+
+  position :relative;
+  display: inline-block;
+ } 
+#carticon{
+}
+
+  #lblCartCount {
+    z-index:1;
+  font-size: 10px;
+  background: #ff0000;
+  color: #fff;
+  padding: 0 5px;
+  vertical-align: top;
+  position: absolute; 
+  margin-top:-10px;
+  right: -8px;
+  border-radius: 50%;
+}
+</style>
+{% endblock stylesheets   %}
 
 {% block stylesheets %}
 <style>
@@ -21,6 +46,7 @@
   }
   
   
+{% block content %}
 </style>
 
 {% endblock stylesheets %}
@@ -42,7 +68,7 @@
 
             <form class="navbar-form">
               <div class="input-group no-border">
-                <input type="text" value="" class="form-control" placeholder="Search...">
+                <input type="text" value="" class="form-control" placeholder="{{cart_id}}">
                 <button type="submit" class="btn btn-white btn-round btn-just-icon">
                   <i class="material-icons">search</i>
                   <div class="ripple-container"></div>
