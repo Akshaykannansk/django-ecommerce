@@ -1,8 +1,26 @@
 {% extends 'layouts/base.html' %}
 
+{% block stylesheets %}
+<style>
+    .quantity__input {
+        width: 32px;
+        height: 28px;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        border-top: 2px solid #dee0ee;
+        border-bottom: 2px solid #dee0ee;
+        border-left: 1px solid #dee0ee;
+        border-right: 2px solid #dee0ee;
+        background: #fff;
+        color: #8184a1;}
+     </style>
+{% endblock stylesheets %}
+
 {% block content %}
   {% if cart_items %}
     <div class="container">
+        {% csrf_token %}
         <h1 class="my-4">My Cart</h1>
         <table class="table table-striped">
             <thead>
@@ -18,18 +36,29 @@
             <tbody>
                 {% for item in cart_items %}
                     <tr>
+                      <input type="hidden"  value="{{ item.product.id }}" class="prod_id">
                         <td>{{ item.product.name }}</td>
                         <td>{{ item.product.description }}</td>
-                        <td>{{ item.product.price }}</td>
-                        <td>  <input type="number" step="1" max="{{item.product.stock}}" min ="1" value="{{ item.quantity }}" name="quantity" class="quantity-field border-0 text-center w-25"></td>
-                        <td>{{ item.get_product_price }}</td>
+                        <td >{{ item.product.price }}</td>
+                        {% comment %} <td>  <input type="number" step="1" max="{{item.product.stock}}" min ="1" value="{{ item.quantity }}" name="quantity" class="quantity-field border-0 text-center w-25"></td> {% endcomment %}
+                      
+  
+                           <td> 
+                            <div class="quantity">
+                              <button class="quantity__minus quant">-</button>
+                              <input name="quantity" type="text" class="quantity__input" value="{{item.quantity}}">
+                              <button class="quantity__plus quant">+</button>
+                            </div>
+                            
+                        </td>
+                        <td class="subtotal">{{ item.get_product_price }}</td>
                         <td><a  class="btn btn-danger" href="{% url 'remove_cart' item.product.id %}"> delete </a></td>
                     </tr>
                    
                 {% endfor %}
                 <tr>
                     <td colspan="4"><strong>Total</strong></td>
-                    <td><strong>{{ total_price }}</strong></td>
+                    <td class="total"><strong>{{ total_price }}</strong></td>
                     <td></td>
                 </tr>
             </tbody>
@@ -47,3 +76,79 @@
 
 {% endblock %}
 
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+      /*  const minus = $('.quantity__minus');
+        const plus = $('.quantity__plus');
+        const input = $('.quantity__input');
+        minus.click(function(e) {
+          e.preventDefault();
+          var value = input.val();
+          if (value > 1) {
+            value--;
+          }
+          input.val(value);
+        });
+        
+        plus.click(function(e) {
+          e.preventDefault();
+          var value = input.val();
+          value++;
+          input.val(value);
+        });
+
+        $('.quant').click(function(e) {
+            e.preventDefault();
+            var prod_id = $(this).closest('tr').find('.prod_id').val();
+            var quantity = $(this).closest('tr').find('.quantity__input').val();
+            var token = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+                method: 'POST',
+                data:{'prod_id': prod_id, 'quantity': quantity, csrfmiddlewaretoken : token},
+                url: '/update_cart'
+            });
+
+        }); */
+        $('.quant').click(function(e) {
+            e.preventDefault();
+            var prod_id = $(this).closest('tr').find('.prod_id').val();
+            var input = $(this).closest('tr').find('.quantity__input');
+            var quantity = parseInt(input.val());
+            if ($(this).hasClass('quantity__minus') && quantity > 1) {
+              quantity--;
+            } else if ($(this).hasClass('quantity__plus')) {
+              quantity++;
+            }
+            input.val(quantity);
+            input.trigger('input'); // Trigger input event to update subtotal and total
+            var token = $('input[name="csrfmiddlewaretoken"]').val();
+            $.ajax({
+              method: 'POST',
+              data:{'prod_id': prod_id, 'quantity': quantity, csrfmiddlewaretoken : token},
+              url: '/update_cart'
+            });
+          });
+
+        $('.quantity__input').on('input', function() {
+            var quantity = parseInt($(this).val(),10)
+            console.log('--------------------------------------')
+            console.log('quantity:', quantity);
+            var price = $(this).closest('tr').find('td:nth-child(3)').text();
+            price = parseFloat(price);
+            var subtotal = quantity * price;
+            $(this).closest('tr').find('.subtotal').text(subtotal.toFixed(2));
+            
+            var total = 0;
+            $('.quantity__input').each(function() {
+              var subtotal = parseFloat($(this).closest('tr').find('.subtotal').text());
+              total += subtotal;
+            });
+            $('.total').text(total.toFixed(2));
+        });
+    }); 
+
+</script>
+
+{% endblock javascripts %}

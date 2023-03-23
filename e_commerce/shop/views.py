@@ -67,21 +67,31 @@ def remove_cart(request, id):
         pass
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+class cart_view(View):
+    def get(self,request):
+        user = request.user
+        try:
+            user_cart = cart.objects.get(user=user)
+        except cart.DoesNotExist:
+            return render(request, 'shop/cart.html')
 
-def cart_view(request):
-    user = request.user
-    try:
-        user_cart = cart.objects.get(user=user)
-    except cart.DoesNotExist:
-         return render(request, 'shop/cart.html')
+        cart_items = user_cart.items.all()
+        total_price = user_cart.get_cart_total()
+        context = {
+            'cart_items': cart_items,
+            'total_price': total_price,
+        }
+        return render(request, 'shop/cart.html', context)
+    
+def UpdateCart(request):
+    if request.method == 'POST':
 
-    cart_items = user_cart.items.all()
-    total_price = user_cart.get_cart_total()
-    context = {
-        'cart_items': cart_items,
-        'total_price': total_price,
-    }
-    return render(request, 'shop/cart.html', context)
+        prod_id = int(request.POST.get('prod_id'))
+        quantity = int (request.POST.get('quantity'))
+        user_cart = cart.objects.get(user=request.user)
+        user_cart.items.filter(product=prod_id).update(quantity=quantity)
+    return redirect('cart')
+
 
 
 
